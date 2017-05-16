@@ -39,5 +39,5 @@ def fetch_users():
 
 
 if __name__ == '__main__':
-    wechat_assistant.auto_login(hotReload=True)
+    wechat_assistant.auto_login(hotReload=True, enableCmdQR=2)
     wechat_assistant.run()
