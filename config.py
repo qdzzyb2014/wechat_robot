@@ -1,3 +1,5 @@
+from celery.schedules import crontab
+
 
 DEBUG = True
 
@@ -10,3 +12,9 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TIMEZONE = 'Asia/Shanghai'
 CELERY_ENABLE_UTC = True
+
+CELERYBEAT_SCHEDULE = {
+    'push_weather': {
+        'push_weather': crontab(minute=30, hour=8)
+    }
+}
