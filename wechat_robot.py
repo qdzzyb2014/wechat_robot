@@ -1,13 +1,56 @@
+import logging
 from threading import Thread
 from datetime import datetime
 from time import sleep
 import requests
 import itchat
 
+from itchat.components.register import logger
+from itchat.log import set_logging
+
+import config
 
 KEY = 'ad65aa94781643e682cd81a629fdecc4'
 
 wechat_assistant = itchat.new_instance()
+
+tasks = []
+
+
+def append_task(func):
+    tasks.append(Thread(target=func))
+    return func
+
+
+def run(self, debug=False, block_thread=True):
+    logger.info('Start auto replying.')
+    setattr(self, 'debug', debug)
+    for task in tasks:
+        task.start()
+    if debug:
+        set_logging(loggingLevel=logging.DEBUG)
+
+    def reply_fn():
+        try:
+            while self.alive:
+                self.configured_reply()
+        except KeyboardInterrupt:
+            if self.useHotReload:
+                self.dump_login_status()
+            self.alive = False
+            for task in tasks:
+                task.join()
+            logger.debug('itchat received an ^C and exit.')
+            logger.info('Bye~')
+    if block_thread:
+        reply_fn()
+    else:
+        replay_thread = Thread(target=reply_fn)
+        replay_thread.setDaemon(True)
+        replay_thread.start()
+
+
+wechat_assistant.run = run
 
 
 def get_response(msg):
@@ -35,16 +78,28 @@ def send_weather(user):
     city = user.get('City')
     if not city:
         return
-    weather_msg = get_response('{}天气'.format(user.get('City')))
+    weather_msg = get_response('{}天气'.format(city))
     wechat_assistant.send_msg(weather_msg, user.get('UserName'))
 
 
 def fetch_users():
+    if wechat_assistant.debug:
+        return wechat_assistant.search_friends(nickName='低位自嗨')
     return wechat_assistant.get_friends()
 
 
-def task_send_weather_to_all_friends():
-    while True:
+@append_task
+def send_test_msg():
+    msg = 'test'
+    user = fetch_users()[0]
+    while wechat_assistant.alive and wechat_assistant.debug:
+        wechat_assistant.send_msg(msg, user.get('UserName'))
+        sleep(5)
+
+
+@append_task
+def send_weather_to_all_friends():
+    while wechat_assistant.alive:
         current_time = datetime.now()
         if (current_time.minute == 20 and
                 current_time.hour == 7 and
@@ -56,8 +111,4 @@ def task_send_weather_to_all_friends():
 
 if __name__ == '__main__':
     wechat_assistant.auto_login(hotReload=True, enableCmdQR=2)
-    weather_thread = Thread(target=task_send_weather_to_all_friends)
-    wechat_assistant.run(blockThread=False)
-    weather_thread.start()
-    while wechat_assistant.alive:
-        pass
+    run(wechat_assistant, debug=config.DEBUG)

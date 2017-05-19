@@ -63,3 +63,5 @@ static/js/common.js
 itchat.pkl
 
 deployment
+
+local_config.py
