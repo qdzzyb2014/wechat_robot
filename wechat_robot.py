@@ -29,6 +29,8 @@ def run(self, debug=False, block_thread=True):
         task.start()
     if debug:
         set_logging(loggingLevel=logging.DEBUG)
+    else:
+        set_logging(loggingFile='/var/log/wechat_robot.py')
 
     def reply_fn():
         try:
@@ -64,7 +66,7 @@ def get_response(msg):
         r = requests.post(api_url, data=data).json()
         return r.get('text')
     except:
-        return
+        return 'request tuling error'
 
 
 @wechat_assistant.msg_register(itchat.content.TEXT)
