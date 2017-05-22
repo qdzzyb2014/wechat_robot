@@ -30,7 +30,7 @@ def run(self, debug=False, block_thread=True):
     if debug:
         set_logging(loggingLevel=logging.DEBUG)
     else:
-        set_logging(loggingFile='/var/log/wechat_robot.py')
+        set_logging(loggingFile='wechat_robot.log')
 
     def reply_fn():
         try:
