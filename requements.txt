@@ -2,9 +2,8 @@ amqp==2.1.4
 appdirs==1.4.3
 appnope==0.1.0
 billiard==3.5.0.2
-celery==4.0.2
 decorator==4.0.11
-itchat==1.3.5
+itchat==1.3.6
 jedi==0.10.2
 kombu==4.0.2
 packaging==16.8
