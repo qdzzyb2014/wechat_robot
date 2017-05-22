@@ -111,6 +111,18 @@ def send_weather_to_all_friends():
         sleep(1)
 
 
+@append_task
+def remind_report():
+    while wechat_assistant.alive:
+        current_time = datetime.now()
+        user = wechat_assistant.search_friends(nickName='低位自嗨')[0]
+        if (current_time.hour == 16 and current_time.minute == 45 and current_time.second == 0):
+            wechat_assistant.send_msg('get ready for scrum', user)
+        elif (current_time.hour == 17 and current_time.minute == 0 and current_time.second == 0):
+            wechat_assistant.send_msg('scrum!', user)
+        sleep(1)
+
+
 if __name__ == '__main__':
     wechat_assistant.auto_login(hotReload=True, enableCmdQR=2)
     run(wechat_assistant, debug=config.DEBUG)
